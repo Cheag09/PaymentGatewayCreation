@@ -1,0 +1,1912 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>POS Station Creation</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            font-weight: 300;
+        }
+
+        .header p {
+            opacity: 0.9;
+            font-size: 1.1rem;
+        }
+
+        .form-container {
+            padding: 40px;
+        }
+
+        .step {
+            margin-bottom: 40px;
+            opacity: 0;
+            transform: translateY(20px);
+            animation: slideIn 0.6s ease forwards;
+        }
+
+        @keyframes slideIn {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .step-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .step-number {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            margin-right: 15px;
+        }
+
+        .step-title {
+            font-size: 1.5rem;
+            color: #333;
+            font-weight: 600;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: #555;
+        }
+
+        select, input {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #e1e5e9;
+            border-radius: 12px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            background: white;
+        }
+
+        select:focus, input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .option-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .option-card {
+            background: #f8f9fa;
+            border: 2px solid #e9ecef;
+            border-radius: 12px;
+            padding: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+
+        .option-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+        }
+
+        .option-card.selected {
+            border-color: #667eea;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+        }
+
+        .option-card h3 {
+            margin-bottom: 10px;
+            font-size: 1.2rem;
+        }
+
+        .option-card p {
+            font-size: 0.9rem;
+            opacity: 0.8;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .features-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .feature-item {
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            padding: 15px;
+        }
+
+        .feature-item label {
+            display: flex;
+            align-items: center;
+            margin: 0;
+            cursor: pointer;
+        }
+
+        .feature-item input[type="checkbox"] {
+            width: auto;
+            margin-right: 10px;
+        }
+
+        .preview {
+            background: linear-gradient(135deg, #4facfe, #00f2fe);
+            color: white;
+            padding: 30px;
+            border-radius: 15px;
+            margin-top: 30px;
+        }
+
+        .preview h3 {
+            margin-bottom: 20px;
+            font-size: 1.5rem;
+        }
+
+        .preview-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            padding: 10px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .preview-item:last-child {
+            border-bottom: none;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 12px;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>POS Station Creator</h1>
+            <p>Configure your point-of-sale station with custom settings</p>
+        </div>
+
+        <div class="form-container">
+            <!-- Step 1: App Type Selection -->
+            <div class="step" id="step1">
+                <div class="step-header">
+                    <div class="step-number">1</div>
+                    <div class="step-title">Select Application Type</div>
+                </div>
+
+                <div class="option-grid">
+                    <div class="option-card" onclick="selectAppType('lite')">
+                        <h3>Lite</h3>
+                    </div>
+                    <div class="option-card" onclick="selectAppType('pos')">
+                        <h3>POS</h3>
+                    </div>
+                    <div class="option-card" onclick="selectAppType('card-not-present')">
+                        <h3>Card Not Present</h3>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 2: Payment Gateway Selection -->
+            <div class="step hidden" id="step2">
+                <div class="step-header">
+                    <div class="step-number">2</div>
+                    <div class="step-title">Choose Payment Gateway</div>
+                </div>
+
+                <div class="form-group">
+                    <label for="paymentGateway">Payment Gateway Provider</label>
+                    <select id="paymentGateway" onchange="selectPaymentGateway()">
+                        <option value="">Select a payment gateway...</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Step 3: Device Selection -->
+            <div class="step hidden" id="step3">
+                <div class="step-header">
+                    <div class="step-number">3</div>
+                    <div class="step-title">Select Device</div>
+                </div>
+
+                <div class="form-group">
+                    <label for="deviceSelect">Available Devices</label>
+                    <select id="deviceSelect" onchange="selectDevice()">
+                        <option value="">Select a device...</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Step 4: Gateway-specific Settings -->
+            <div class="step hidden" id="step4">
+                <div class="step-header">
+                    <div class="step-number">4</div>
+                    <div class="step-title">Gateway Specific Settings</div>
+                </div>
+
+                <div id="gatewaySpecificConfig"></div>
+            </div>
+
+            <!-- Step 5: Standard Gateway Configuration -->
+            <div class="step hidden" id="step5">
+                <div class="step-header">
+                    <div class="step-number">5</div>
+                    <div class="step-title">Configure Gateway Settings</div>
+                </div>
+
+                <div id="gatewayConfig"></div>
+            </div>
+
+            <!-- Step 6: Final Configuration -->
+            <div class="step hidden" id="step6">
+                <div class="step-header">
+                    <div class="step-number">6</div>
+                    <div class="step-title">Station Details</div>
+                </div>
+
+                <div class="form-group">
+                    <label for="stationName">Station Name</label>
+                    <input type="text" id="stationName" placeholder="Enter station name" oninput="updatePreview()">
+                </div>
+
+                <div class="form-group">
+                    <label for="location">Location</label>
+                    <input type="text" id="location" placeholder="Enter location" oninput="updatePreview()">
+                </div>
+
+                <div class="preview" id="configPreview">
+                    <h3>Configuration Preview</h3>
+                    <div id="previewContent"></div>
+                </div>
+
+                <button class="btn" onclick="createStation()" style="margin-top: 20px;">Create Station</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let config = {
+            appType: '',
+            paymentGateway: '',
+            device: '',
+            gatewaySettings: {},
+            features: [],
+            stationName: '',
+            location: ''
+        };
+
+        function selectAppType(type) {
+            config.appType = type;
+            
+            // Reset all subsequent configuration
+            resetSubsequentSteps();
+            
+            // Update UI
+            document.querySelectorAll('.option-card').forEach(card => {
+                card.classList.remove('selected');
+            });
+            event.target.closest('.option-card').classList.add('selected');
+            
+            // Populate payment gateway options based on app type
+            populatePaymentGateways(type);
+            
+            // Show next step
+            setTimeout(() => {
+                document.getElementById('step2').classList.remove('hidden');
+            }, 300);
+        }
+
+        function resetSubsequentSteps() {
+            // Reset config object
+            config.paymentGateway = '';
+            config.device = '';
+            config.gatewaySettings = {};
+            config.stationName = '';
+            config.location = '';
+            
+            // Hide all subsequent steps
+            document.getElementById('step3').classList.add('hidden');
+            document.getElementById('step4').classList.add('hidden');
+            document.getElementById('step5').classList.add('hidden');
+            document.getElementById('step6').classList.add('hidden');
+            
+            // Clear form fields
+            const paymentGatewaySelect = document.getElementById('paymentGateway');
+            if (paymentGatewaySelect) {
+                paymentGatewaySelect.value = '';
+            }
+            
+            const deviceSelect = document.getElementById('deviceSelect');
+            if (deviceSelect) {
+                deviceSelect.value = '';
+                deviceSelect.innerHTML = '<option value="">Select a device...</option>';
+            }
+            
+            // Clear gateway specific config
+            const gatewaySpecificConfig = document.getElementById('gatewaySpecificConfig');
+            if (gatewaySpecificConfig) {
+                gatewaySpecificConfig.innerHTML = '';
+            }
+            
+            // Clear standard gateway config
+            const gatewayConfig = document.getElementById('gatewayConfig');
+            if (gatewayConfig) {
+                gatewayConfig.innerHTML = '';
+            }
+            
+            // Clear station details
+            const stationName = document.getElementById('stationName');
+            if (stationName) {
+                stationName.value = '';
+            }
+            
+            const location = document.getElementById('location');
+            if (location) {
+                location.value = '';
+            }
+            
+            // Clear preview
+            const previewContent = document.getElementById('previewContent');
+            if (previewContent) {
+                previewContent.innerHTML = '';
+            }
+        }
+
+        function populatePaymentGateways(appType) {
+            const gatewaySelect = document.getElementById('paymentGateway');
+            
+            // Clear existing options
+            gatewaySelect.innerHTML = '<option value="">Select a payment gateway...</option>';
+            
+            let gateways = [];
+            
+            if (appType === 'card-not-present') {
+                gateways = [
+                    { value: 'authnet', name: 'Auth.net' },
+                    { value: 'tsys-transit', name: 'TSYS TransIT' },
+                    { value: 'quest', name: 'Quest' },
+                    { value: 'dejavoo', name: 'Dejavoo' }
+                ];
+            } else {
+                // Original gateways for Lite and POS
+                gateways = [
+                    { value: 'cardconnect', name: 'CardConnect' },
+                    { value: 'elavon', name: 'Elavon' },
+                    { value: 'payroc', name: 'Payroc' },
+                    { value: 'pax-qst-lite-apio', name: 'PAX (QST/LITE/APIO)' },
+                    { value: 'tsys', name: 'TSYS' },
+                    { value: 'authnet', name: 'Auth.net' },
+                    { value: 'pax-direct-pos', name: 'PAX Direct (POS)' },
+                    { value: 'amp', name: 'AMP' },
+                    { value: 'magensa', name: 'Magensa' },
+                    { value: 'payroc-gateway', name: 'Payroc Gateway' },
+                    { value: 'dx8000', name: 'DX8000' },
+                    { value: 'bbpos', name: 'BBPOS' },
+                    { value: 'quest', name: 'Quest' },
+                    { value: 'payroc-gateway-uat', name: 'Payroc Gateway (UAT)' },
+                    { value: 'dx8000-uat', name: 'DX8000 (UAT)' },
+                    { value: 'bbpos-uat', name: 'BB POS (UAT)' },
+                    { value: 'pax-uk-pa', name: 'PAX UK PA' },
+                    { value: 'paidyet', name: 'PaidYET' },
+                    { value: 'dejavoo', name: 'Dejavoo' }
+                ];
+            }
+            
+            gateways.forEach(gateway => {
+                const option = document.createElement('option');
+                option.value = gateway.value;
+                option.textContent = gateway.name;
+                gatewaySelect.appendChild(option);
+            });
+        }
+
+        function selectPaymentGateway() {
+            const gateway = document.getElementById('paymentGateway').value;
+            config.paymentGateway = gateway;
+            
+            // Reset all subsequent steps when gateway changes
+            resetFromDeviceSelection();
+            
+            if (gateway) {
+                // For Card Not Present, skip device selection and go directly to gateway specific settings
+                if (config.appType === 'card-not-present') {
+                    config.device = 'card-not-present'; // Set a default device value
+                    showGatewaySpecificSettings();
+                    setTimeout(() => {
+                        document.getElementById('step4').classList.remove('hidden');
+                    }, 300);
+                } else {
+                    showDeviceOptions(gateway);
+                    setTimeout(() => {
+                        document.getElementById('step3').classList.remove('hidden');
+                    }, 300);
+                }
+            }
+        }
+
+        function resetFromDeviceSelection() {
+            // Reset config values
+            config.device = '';
+            config.gatewaySettings = {};
+            config.stationName = '';
+            config.location = '';
+            
+            // Hide subsequent steps
+            document.getElementById('step3').classList.add('hidden');
+            document.getElementById('step4').classList.add('hidden');
+            document.getElementById('step5').classList.add('hidden');
+            document.getElementById('step6').classList.add('hidden');
+            
+            // Clear device selection
+            const deviceSelect = document.getElementById('deviceSelect');
+            if (deviceSelect) {
+                deviceSelect.value = '';
+                deviceSelect.innerHTML = '<option value="">Select a device...</option>';
+            }
+            
+            // Clear gateway specific config
+            const gatewaySpecificConfig = document.getElementById('gatewaySpecificConfig');
+            if (gatewaySpecificConfig) {
+                gatewaySpecificConfig.innerHTML = '';
+            }
+            
+            // Clear standard gateway config
+            const gatewayConfig = document.getElementById('gatewayConfig');
+            if (gatewayConfig) {
+                gatewayConfig.innerHTML = '';
+            }
+            
+            // Clear station details
+            const stationName = document.getElementById('stationName');
+            if (stationName) {
+                stationName.value = '';
+            }
+            
+            const location = document.getElementById('location');
+            if (location) {
+                location.value = '';
+            }
+            
+            // Clear preview
+            const previewContent = document.getElementById('previewContent');
+            if (previewContent) {
+                previewContent.innerHTML = '';
+            }
+            
+            // Reset URL/Device pair counter for TSYS TransIT
+            urlDevicePairCount = 1;
+        }
+
+        function showDeviceOptions(gateway) {
+            const deviceSelect = document.getElementById('deviceSelect');
+            const devices = getGatewayDevices(gateway);
+            
+            // Clear existing options
+            deviceSelect.innerHTML = '<option value="">Select a device...</option>';
+            
+            // Add gateway-specific devices
+            devices.forEach(device => {
+                const option = document.createElement('option');
+                option.value = device.value;
+                option.textContent = device.name;
+                deviceSelect.appendChild(option);
+            });
+        }
+
+        function getGatewayDevices(gateway) {
+            const deviceMap = {
+                'dejavoo': [
+                    { value: 'P1', name: 'Dejavoo P1' },
+                    { value: 'P8', name: 'Dejavoo P8' }
+                ],
+                'cardconnect': [
+                    { value: 'Lane 3600', name: 'Lane 3600' }
+                ],
+                'heartland': [
+                    { value: 'lane 3600', name: 'Lane 3600' }
+                ],
+                'pax-qst-lite-apio': [
+                    { value: 'a920pro', name: 'PAX A920pro' },
+                    { value: 'a77', name: 'PAX A77' },
+                    { value: 'a35', name: 'PAX A35' },
+                    { value: 'a80', name: 'PAX A80' },
+                    { value: 'A800', name: 'PAX A800' }
+                ],
+                'pax-direct-pos': [
+                    { value: 'a920pro', name: 'PAX A920pro' },
+                    { value: 'a77', name: 'PAX A77' },
+                    { value: 'a35', name: 'PAX A35' },
+                    { value: 'a80', name: 'PAX A80' },
+                    { value: 'A800', name: 'PAX A800' }
+                ],
+                'bbpos': [
+                    { value: 'bbpos', name: 'BBPOS' }
+                ],
+                'tsys': [
+                    { value: 'PAX Devices', name: 'PAX Devices' }
+                ]
+            };
+
+            return deviceMap[gateway] || [
+                { value: 'generic-terminal', name: 'Generic Terminal' },
+                { value: 'integrated-pos', name: 'Integrated POS' }
+            ];
+        }
+
+        function selectDevice() {
+            const device = document.getElementById('deviceSelect').value;
+            config.device = device;
+            
+            // Reset all subsequent steps when device changes
+            resetFromGatewaySettings();
+            
+            if (device) {
+                showGatewaySpecificSettings();
+                setTimeout(() => {
+                    document.getElementById('step4').classList.remove('hidden');
+                }, 300);
+            }
+        }
+
+        function resetFromGatewaySettings() {
+            // Reset config values
+            config.gatewaySettings = {};
+            config.stationName = '';
+            config.location = '';
+            
+            // Hide subsequent steps
+            document.getElementById('step4').classList.add('hidden');
+            document.getElementById('step5').classList.add('hidden');
+            document.getElementById('step6').classList.add('hidden');
+            
+            // Clear gateway specific config
+            const gatewaySpecificConfig = document.getElementById('gatewaySpecificConfig');
+            if (gatewaySpecificConfig) {
+                gatewaySpecificConfig.innerHTML = '';
+            }
+            
+            // Clear standard gateway config
+            const gatewayConfig = document.getElementById('gatewayConfig');
+            if (gatewayConfig) {
+                gatewayConfig.innerHTML = '';
+            }
+            
+            // Clear station details
+            const stationName = document.getElementById('stationName');
+            if (stationName) {
+                stationName.value = '';
+            }
+            
+            const location = document.getElementById('location');
+            if (location) {
+                location.value = '';
+            }
+            
+            // Clear preview
+            const previewContent = document.getElementById('previewContent');
+            if (previewContent) {
+                previewContent.innerHTML = '';
+            }
+            
+            // Reset URL/Device pair counter for TSYS TransIT
+            urlDevicePairCount = 1;
+        }
+
+        function getGatewayDisplayName(gateway) {
+            const displayNames = {
+                'dejavoo': 'Dejavoo',
+                'cardconnect': 'CardConnect',
+                'heartland': 'Heartland',
+                'elavon': 'Elavon',
+                'payroc': 'Payroc',
+                'nmi': 'NMI',
+                'pax-qst-lite-apio': 'PAX (QST/LITE/APIO)',
+                'tsys': 'TSYS',
+                'tsys-transit': 'TSYS TransIT',
+                'authnet': 'Auth.net',
+                'pax-direct-pos': 'PAX Direct (POS)',
+                'amp': 'AMP',
+                'magensa': 'Magensa',
+                'payroc-gateway': 'Payroc Gateway',
+                'dx8000': 'DX8000',
+                'bbpos': 'BBPOS',
+                'quest': 'Quest',
+                'payroc-gateway-uat': 'Payroc Gateway (UAT)',
+                'dx8000-uat': 'DX8000 (UAT)',
+                'bbpos-uat': 'BB POS (UAT)',
+                'pax-uk-pa': 'PAX UK PA',
+                'paidyet': 'PaidYET'
+            };
+            return displayNames[gateway] || gateway;
+        }
+
+        function showGatewaySpecificSettings() {
+            const configDiv = document.getElementById('gatewaySpecificConfig');
+            const gateway = config.paymentGateway;
+            const appType = config.appType;
+            
+            const specificFields = getGatewaySpecificFieldsByAppType(gateway, appType);
+            
+            if (specificFields) {
+                configDiv.innerHTML = `
+                    <div style="margin-bottom: 20px;">
+                        <h4 style="color: #667eea; margin-bottom: 20px; font-size: 1.2rem;">${getGatewayDisplayName(gateway)} Settings for ${appType.replace('-', ' ').toUpperCase()}</h4>
+                        ${specificFields}
+                    </div>
+                `;
+            } else {
+                // If no specific fields, skip to standard gateway config
+                showStandardGatewayConfig();
+                setTimeout(() => {
+                    document.getElementById('step5').classList.remove('hidden');
+                }, 300);
+                return;
+            }
+        }
+
+        function getGatewaySpecificFieldsByAppType(gateway, appType) {
+            const gatewayConfigs = {
+                'cardconnect': {
+                    'pos': `
+                        <div class="form-group">
+                            <label for="manufacturer">Manufacturer</label>
+                            <input type="text" id="manufacturer" placeholder="Enter Manufacturer" oninput="updateGatewaySpecificSetting('manufacturer', this.value)" onchange="checkAllFieldsFilled()">
+                        </div>
+                        <div class="form-group">
+                            <label for="model">Model</label>
+                            <input type="text" id="model" placeholder="Enter Model" oninput="updateGatewaySpecificSetting('model', this.value)" onchange="checkAllFieldsFilled()">
+                        </div>
+                        <div class="form-group">
+                            <label for="username">Username</label>
+                            <input type="text" id="username" placeholder="Enter Username" oninput="updateGatewaySpecificSetting('username', this.value)" onchange="checkAllFieldsFilled()">
+                        </div>
+                        <div class="form-group">
+                            <label for="password">Password</label>
+                            <input type="password" id="password" placeholder="Enter Password" oninput="updateGatewaySpecificSetting('password', this.value)" onchange="checkAllFieldsFilled()">
+                        </div>
+                        <div class="form-group">
+                            <label for="serialNumbers">Serial Numbers</label>
+                            <input type="text" id="serialNumbers" placeholder="Enter Serial Numbers" oninput="updateGatewaySpecificSetting('serialNumbers', this.value)" onchange="checkAllFieldsFilled()">
+                        </div>
+                        <div class="form-group">
+                            <label for="merchantId">Merchant ID</label>
+                            <input type="text" id="merchantId" placeholder="Enter Merchant ID" oninput="updateGatewaySpecificSetting('merchantId', this.value)" onchange="checkAllFieldsFilled()">
+                        </div>
+                        <div class="form-group">
+                            <label for="url">URL</label>
+                            <select id="url" onchange="updateGatewaySpecificSetting('url', this.value); checkAllFieldsFilled();">
+                                <option value="">Select URL type...</option>
+                                <option value="legacy">Legacy (fts.xxx)</option>
+                                <option value="new">New (Metis.xxx)</option>
+                            </select>
+                        </div>
+                    `
+                },
+                'payroc-gateway': {
+                    'lite': `
+                        <div class="form-group">
+                            <label for="serialNumber">Serial Number</label>
+                            <input type="text" id="serialNumber" placeholder="Enter Serial Number" oninput="updateGatewaySpecificSetting('serialNumber', this.value)" onchange="checkAllFieldsFilled()">
+                        </div>
+                        <div class="form-group">
+                            <label for="merchantId">Merchant ID</label>
+                            <input type="text" id="merchantId" placeholder="Enter Merchant ID" oninput="updateGatewaySpecificSetting('merchantId', this.value)" onchange="checkAllFieldsFilled()">
+                        </div>
+                        <div class="form-group">
+                            <label for="contactName">Contact Name</label>
+                            <input type="text" id="contactName" placeholder="Enter Contact Name" oninput="updateGatewaySpecificSetting('contactName', this.value)" onchange="checkAllFieldsFilled()">
+                        </div>
+                        <div class="form-group">
+                            <label for="phone">Phone</label>
+                            <input type="tel" id="phone" placeholder="Enter Phone Number" oninput="updateGatewaySpecificSetting('phone', this.value)" onchange="checkAllFieldsFilled()">
+                        </div>
+                        <div class="form-group">
+                            <label for="email">Email</label>
+                            <input type="email" id="email" placeholder="Enter Email Address" oninput="updateGatewaySpecificSetting('email', this.value)" onchange="checkAllFieldsFilled()">
+                        </div>
+                        <div class="form-group">
+                            <label for="address">Address</label>
+                            <input type="text" id="address" placeholder="Enter Street Address" oninput="updateGatewaySpecificSetting('address', this.value)" onchange="checkAllFieldsFilled()">
+                        </div>
+                        <div class="form-group">
+                            <label for="city">City</label>
+                            <input type="text" id="city" placeholder="Enter City" oninput="updateGatewaySpecificSetting('city', this.value)" onchange="checkAllFieldsFilled()">
+                        </div>
+                        <div class="form-group">
+                            <label for="state">State</label>
+                            <input type="text" id="state" placeholder="Enter State" oninput="updateGatewaySpecificSetting('state', this.value)" onchange="checkAllFieldsFilled()">
+                        </div>
+                        <div class="form-group">
+                            <label for="zipCode">Zip Code</label>
+                            <input type="text" id="zipCode" placeholder="Enter Zip Code" oninput="updateGatewaySpecificSetting('zipCode', this.value)" onchange="checkAllFieldsFilled()">
+                        </div>
+                    `,
+                    'pos': `
+                        <div class="form-group">
+                            <label for="serialNumber">Serial Number</label>
+                            <input type="text" id="serialNumber" placeholder="Enter Serial Number" oninput="updateGatewaySpecificSetting('serialNumber', this.value)" onchange="checkAllFieldsFilled()">
+                        </div>
+                        <div class="form-group">
+                            <label for="merchantId">Merchant ID</label>
+                            <input type="text" id="merchantId" placeholder="Enter Merchant ID" oninput="updateGatewaySpecificSetting('merchantId', this.value)" onchange="checkAllFieldsFilled()">
+                        </div>
+                        <div class="form-group">
+                            <label for="contactName">Contact Name</label>
+                            <input type="text" id="contactName" placeholder="Enter Contact Name" oninput="updateGatewaySpecificSetting('contactName', this.value)" onchange="checkAllFieldsFilled()">
+                        </div>
+                        <div class="form-group">
+                            <label for="phone">Phone</label>
+                            <input type="tel" id="phone" placeholder="Enter Phone Number" oninput="updateGatewaySpecificSetting('phone', this.value)" onchange="checkAllFieldsFilled()">
+                        </div>
+                        <div class="form-group">
+                            <label for="email">Email</label>
+                            <input type="email" id="email" placeholder="Enter Email Address" oninput="updateGatewaySpecificSetting('email', this.value)" onchange="checkAllFieldsFilled()">
+                        </div>
+                        <div class="form-group">
+                            <label for="address">Address</label>
+                            <input type="text" id="address" placeholder="Enter Street Address" oninput="updateGatewaySpecificSetting('address', this.value)" onchange="checkAllFieldsFilled()">
+                        </div>
+                        <div class="form-group">
+                            <label for="city">City</label>
+                            <input type="text" id="city" placeholder="Enter City" oninput="updateGatewaySpecificSetting('city', this.value)" onchange="checkAllFieldsFilled()">
+                        </div>
+                        <div class="form-group">
+                            <label for="state">State</label>
+                            <input type="text" id="state" placeholder="Enter State" oninput="updateGatewaySpecificSetting('state', this.value)" onchange="checkAllFieldsFilled()">
+                        </div>
+                        <div class="form-group">
+                            <label for="zipCode">Zip Code</label>
+                            <input type="text" id="zipCode" placeholder="Enter Zip Code" oninput="updateGatewaySpecificSetting('zipCode', this.value)" onchange="checkAllFieldsFilled()">
+                        </div>
+                    `,
+                    'card-not-present': `
+                        <div class="form-group">
+                            <label for="serialNumber">Serial Number</label>
+                            <input type="text" id="serialNumber" placeholder="Enter Serial Number" oninput="updateGatewaySpecificSetting('serialNumber', this.value)" onchange="checkAllFieldsFilled()">
+                        </div>
+                        <div class="form-group">
+                            <label for="merchantId">Merchant ID</label>
+                            <input type="text" id="merchantId" placeholder="Enter Merchant ID" oninput="updateGatewaySpecificSetting('merchantId', this.value)" onchange="checkAllFieldsFilled()">
+                        </div>
+                        <div class="form-group">
+                            <label for="contactName">Contact Name</label>
+                            <input type="text" id="contactName" placeholder="Enter Contact Name" oninput="updateGatewaySpecificSetting('contactName', this.value)" onchange="checkAllFieldsFilled()">
+                        </div>
+                        <div class="form-group">
+                            <label for="phone">Phone</label>
+                            <input type="tel" id="phone" placeholder="Enter Phone Number" oninput="updateGatewaySpecificSetting('phone', this.value)" onchange="checkAllFieldsFilled()">
+                        </div>
+                        <div class="form-group">
+                            <label for="email">Email</label>
+                            <input type="email" id="email" placeholder="Enter Email Address" oninput="updateGatewaySpecificSetting('email', this.value)" onchange="checkAllFieldsFilled()">
+                        </div>
+                        <div class="form-group">
+                            <label for="address">Address</label>
+                            <input type="text" id="address" placeholder="Enter Street Address" oninput="updateGatewaySpecificSetting('address', this.value)" onchange="checkAllFieldsFilled()">
+                        </div>
+                        <div class="form-group">
+                            <label for="city">City</label>
+                            <input type="text" id="city" placeholder="Enter City" oninput="updateGatewaySpecificSetting('city', this.value)" onchange="checkAllFieldsFilled()">
+                        </div>
+                        <div class="form-group">
+                            <label for="state">State</label>
+                            <input type="text" id="state" placeholder="Enter State" oninput="updateGatewaySpecificSetting('state', this.value)" onchange="checkAllFieldsFilled()">
+                        </div>
+                        <div class="form-group">
+                            <label for="zipCode">Zip Code</label>
+                            <input type="text" id="zipCode" placeholder="Enter Zip Code" oninput="updateGatewaySpecificSetting('zipCode', this.value)" onchange="checkAllFieldsFilled()">
+                        </div>
+                    `
+                },
+                'payroc-gateway-uat': {
+                    'lite': `
+                        <div class="form-group">
+                            <label for="serialNumber">Serial Number</label>
+                            <input type="text" id="serialNumber" placeholder="Enter Serial Number" oninput="updateGatewaySpecificSetting('serialNumber', this.value)" onchange="checkAllFieldsFilled()">
+                        </div>
+                        <div class="form-group">
+                            <label for="merchantId">Merchant ID</label>
+                            <input type="text" id="merchantId" placeholder="Enter Merchant ID" oninput="updateGatewaySpecificSetting('merchantId', this.value)" onchange="checkAllFieldsFilled()">
+                        </div>
+                        <div class="form-group">
+                            <label for="contactName">Contact Name</label>
+                            <input type="text" id="contactName" placeholder="Enter Contact Name" oninput="updateGatewaySpecificSetting('contactName', this.value)" onchange="checkAllFieldsFilled()">
+                        </div>
+                        <div class="form-group">
+                            <label for="phone">Phone</label>
+                            <input type="tel" id="phone" placeholder="Enter Phone Number" oninput="updateGatewaySpecificSetting('phone', this.value)" onchange="checkAllFieldsFilled()">
+                        </div>
+                        <div class="form-group">
+                            <label for="email">Email</label>
+                            <input type="email" id="email" placeholder="Enter Email Address" oninput="updateGatewaySpecificSetting('email', this.value)" onchange="checkAllFieldsFilled()">
+                        </div>
+                        <div class="form-group">
+                            <label for="address">Address</label>
+                            <input type="text" id="address" placeholder="Enter Street Address" oninput="updateGatewaySpecificSetting('address', this.value)" onchange="checkAllFieldsFilled()">
+                        </div>
+                        <div class="form-group">
+                            <label for="city">City</label>
+                            <input type="text" id="city" placeholder="Enter City" oninput="updateGatewaySpecificSetting('city', this.value)" onchange="checkAllFieldsFilled()">
+                        </div>
+                        <div class="form-group">
+                            <label for="state">State</label>
+                            <input type="text" id="state" placeholder="Enter State" oninput="updateGatewaySpecificSetting('state', this.value)" onchange="checkAllFieldsFilled()">
+                        </div>
+                        <div class="form-group">
+                            <label for="zipCode">Zip Code</label>
+                            <input type="text" id="zipCode" placeholder="Enter Zip Code" oninput="updateGatewaySpecificSetting('zipCode', this.value)" onchange="checkAllFieldsFilled()">
+                        </div>
+                    `,
+                    'pos': `
+                        <div class="form-group">
+                            <label for="serialNumber">Serial Number</label>
+                            <input type="text" id="serialNumber" placeholder="Enter Serial Number" oninput="updateGatewaySpecificSetting('serialNumber', this.value)" onchange="checkAllFieldsFilled()">
+                        </div>
+                        <div class="form-group">
+                            <label for="merchantId">Merchant ID</label>
+                            <input type="text" id="merchantId" placeholder="Enter Merchant ID" oninput="updateGatewaySpecificSetting('merchantId', this.value)" onchange="checkAllFieldsFilled()">
+                        </div>
+                        <div class="form-group">
+                            <label for="contactName">Contact Name</label>
+                            <input type="text" id="contactName" placeholder="Enter Contact Name" oninput="updateGatewaySpecificSetting('contactName', this.value)" onchange="checkAllFieldsFilled()">
+                        </div>
+                        <div class="form-group">
+                            <label for="phone">Phone</label>
+                            <input type="tel" id="phone" placeholder="Enter Phone Number" oninput="updateGatewaySpecificSetting('phone', this.value)" onchange="checkAllFieldsFilled()">
+                        </div>
+                        <div class="form-group">
+                            <label for="email">Email</label>
+                            <input type="email" id="email" placeholder="Enter Email Address" oninput="updateGatewaySpecificSetting('email', this.value)" onchange="checkAllFieldsFilled()">
+                        </div>
+                        <div class="form-group">
+                            <label for="address">Address</label>
+                            <input type="text" id="address" placeholder="Enter Street Address" oninput="updateGatewaySpecificSetting('address', this.value)" onchange="checkAllFieldsFilled()">
+                        </div>
+                        <div class="form-group">
+                            <label for="city">City</label>
+                            <input type="text" id="city" placeholder="Enter City" oninput="updateGatewaySpecificSetting('city', this.value)" onchange="checkAllFieldsFilled()">
+                        </div>
+                        <div class="form-group">
+                            <label for="state">State</label>
+                            <input type="text" id="state" placeholder="Enter State" oninput="updateGatewaySpecificSetting('state', this.value)" onchange="checkAllFieldsFilled()">
+                        </div>
+                        <div class="form-group">
+                            <label for="zipCode">Zip Code</label>
+                            <input type="text" id="zipCode" placeholder="Enter Zip Code" oninput="updateGatewaySpecificSetting('zipCode', this.value)" onchange="checkAllFieldsFilled()">
+                        </div>
+                    `,
+                    'card-not-present': `
+                        <div class="form-group">
+                            <label for="serialNumber">Serial Number</label>
+                            <input type="text" id="serialNumber" placeholder="Enter Serial Number" oninput="updateGatewaySpecificSetting('serialNumber', this.value)" onchange="checkAllFieldsFilled()">
+                        </div>
+                        <div class="form-group">
+                            <label for="merchantId">Merchant ID</label>
+                            <input type="text" id="merchantId" placeholder="Enter Merchant ID" oninput="updateGatewaySpecificSetting('merchantId', this.value)" onchange="checkAllFieldsFilled()">
+                        </div>
+                        <div class="form-group">
+                            <label for="contactName">Contact Name</label>
+                            <input type="text" id="contactName" placeholder="Enter Contact Name" oninput="updateGatewaySpecificSetting('contactName', this.value)" onchange="checkAllFieldsFilled()">
+                        </div>
+                        <div class="form-group">
+                            <label for="phone">Phone</label>
+                            <input type="tel" id="phone" placeholder="Enter Phone Number" oninput="updateGatewaySpecificSetting('phone', this.value)" onchange="checkAllFieldsFilled()">
+                        </div>
+                        <div class="form-group">
+                            <label for="email">Email</label>
+                            <input type="email" id="email" placeholder="Enter Email Address" oninput="updateGatewaySpecificSetting('email', this.value)" onchange="checkAllFieldsFilled()">
+                        </div>
+                        <div class="form-group">
+                            <label for="address">Address</label>
+                            <input type="text" id="address" placeholder="Enter Street Address" oninput="updateGatewaySpecificSetting('address', this.value)" onchange="checkAllFieldsFilled()">
+                        </div>
+                        <div class="form-group">
+                            <label for="city">City</label>
+                            <input type="text" id="city" placeholder="Enter City" oninput="updateGatewaySpecificSetting('city', this.value)" onchange="checkAllFieldsFilled()">
+                        </div>
+                        <div class="form-group">
+                            <label for="state">State</label>
+                            <input type="text" id="state" placeholder="Enter State" oninput="updateGatewaySpecificSetting('state', this.value)" onchange="checkAllFieldsFilled()">
+                        </div>
+                        <div class="form-group">
+                            <label for="zipCode">Zip Code</label>
+                            <input type="text" id="zipCode" placeholder="Enter Zip Code" oninput="updateGatewaySpecificSetting('zipCode', this.value)" onchange="checkAllFieldsFilled()">
+                        </div>
+                    `
+                },
+                'dejavoo': {
+                    'lite': `
+                        <div class="form-group">
+                            <label>Relationship Type</label>
+                            <div style="margin-top: 10px;">
+                                <label style="display: flex; align-items: center; cursor: pointer; margin-bottom: 10px;">
+                                    <input type="radio" name="dejavooRelationship" value="quantic" onchange="updateGatewaySpecificSetting('relationshipType', this.value); checkAllFieldsFilled();" style="margin-right: 10px;">
+                                    Use Quantic Relationship - Refer to Schedule A
+                                </label>
+                                <label style="display: flex; align-items: center; cursor: pointer; margin-bottom: 10px;">
+                                    <input type="radio" name="dejavooRelationship" value="byom" onchange="updateGatewaySpecificSetting('relationshipType', this.value); checkAllFieldsFilled();" style="margin-right: 10px;">
+                                    Bring your own relationship - Monthly Cost - $10/month per MID
+                                </label>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="tpn">TPN</label>
+                            <input type="text" id="tpn" placeholder="Enter TPN" oninput="updateGatewaySpecificSetting('tpn', this.value)" onchange="checkAllFieldsFilled()">
+                        </div>
+                        <div class="form-group">
+                            <label for="authToken">Auth Token</label>
+                            <input type="password" id="authToken" placeholder="Enter Auth Token" oninput="updateGatewaySpecificSetting('authToken', this.value)" onchange="checkAllFieldsFilled()">
+                        </div>
+                    `,
+                    'pos': `
+                        <div class="form-group">
+                            <label>Relationship Type</label>
+                            <div style="margin-top: 10px;">
+                                <label style="display: flex; align-items: center; cursor: pointer; margin-bottom: 10px;">
+                                    <input type="radio" name="dejavooRelationship" value="quantic" onchange="updateGatewaySpecificSetting('relationshipType', this.value); checkAllFieldsFilled();" style="margin-right: 10px;">
+                                    Use Quantic Relationship - Refer to Schedule A
+                                </label>
+                                <label style="display: flex; align-items: center; cursor: pointer; margin-bottom: 10px;">
+                                    <input type="radio" name="dejavooRelationship" value="byom" onchange="updateGatewaySpecificSetting('relationshipType', this.value); checkAllFieldsFilled();" style="margin-right: 10px;">
+                                    Bring your own relationship - Monthly Cost - $10/month per MID
+                                </label>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="tpn">TPN</label>
+                            <input type="text" id="tpn" placeholder="Enter TPN" oninput="updateGatewaySpecificSetting('tpn', this.value)" onchange="checkAllFieldsFilled()">
+                        </div>
+                        <div class="form-group">
+                            <label for="authToken">Auth Token</label>
+                            <input type="password" id="authToken" placeholder="Enter Auth Token" oninput="updateGatewaySpecificSetting('authToken', this.value)" onchange="checkAllFieldsFilled()">
+                        </div>
+                        <div class="form-group">
+                            <label for="registerId">Register ID</label>
+                            <input type="text" id="registerId" placeholder="Enter Register ID" oninput="updateGatewaySpecificSetting('registerId', this.value)" onchange="checkAllFieldsFilled()">
+                        </div>
+                        <div class="form-group">
+                            <label for="authKey">Auth Key</label>
+                            <input type="password" id="authKey" placeholder="Enter Auth Key" oninput="updateGatewaySpecificSetting('authKey', this.value)" onchange="checkAllFieldsFilled()">
+                        </div>
+                    `,
+                    'card-not-present': `
+                        <div class="form-group">
+                            <label>Relationship Type</label>
+                            <div style="margin-top: 10px;">
+                                <label style="display: flex; align-items: center; cursor: pointer; margin-bottom: 10px;">
+                                    <input type="radio" name="dejavooRelationship" value="quantic" onchange="updateGatewaySpecificSetting('relationshipType', this.value); checkAllFieldsFilled();" style="margin-right: 10px;">
+                                    Use Quantic Relationship - Refer to Schedule A
+                                </label>
+                                <label style="display: flex; align-items: center; cursor: pointer; margin-bottom: 10px;">
+                                    <input type="radio" name="dejavooRelationship" value="byom" onchange="updateGatewaySpecificSetting('relationshipType', this.value); checkAllFieldsFilled();" style="margin-right: 10px;">
+                                    Bring your own relationship - Monthly Cost - $10/month per MID
+                                </label>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="tpn">TPN</label>
+                            <input type="text" id="tpn" placeholder="Enter TPN" oninput="updateGatewaySpecificSetting('tpn', this.value)" onchange="checkAllFieldsFilled()">
+                        </div>
+                        <div class="form-group">
+                            <label for="authToken">Auth Token</label>
+                            <input type="password" id="authToken" placeholder="Enter Auth Token" oninput="updateGatewaySpecificSetting('authToken', this.value)" onchange="checkAllFieldsFilled()">
+                        </div>
+                        <div class="form-group">
+                            <label for="registerId">Register ID</label>
+                            <input type="text" id="registerId" placeholder="Enter Register ID" oninput="updateGatewaySpecificSetting('registerId', this.value)" onchange="checkAllFieldsFilled()">
+                        </div>
+                        <div class="form-group">
+                            <label for="authKey">Auth Key</label>
+                            <input type="password" id="authKey" placeholder="Enter Auth Key" oninput="updateGatewaySpecificSetting('authKey', this.value)" onchange="checkAllFieldsFilled()">
+                        </div>
+                    `
+                },
+                'authnet': {
+                    'card-not-present': `
+                        <div class="form-group">
+                            <label for="merchantId">Merchant ID</label>
+                            <input type="text" id="merchantId" placeholder="Enter Merchant ID" oninput="updateGatewaySpecificSetting('merchantId', this.value)" onchange="checkAllFieldsFilled()">
+                        </div>
+                        <div class="form-group">
+                            <label for="apiLogin">API Login</label>
+                            <input type="text" id="apiLogin" placeholder="Enter API Login" oninput="updateGatewaySpecificSetting('apiLogin', this.value)" onchange="checkAllFieldsFilled()">
+                        </div>
+                        <div class="form-group">
+                            <label for="transactionKey">Transaction Key</label>
+                            <input type="password" id="transactionKey" placeholder="Enter Transaction Key" oninput="updateGatewaySpecificSetting('transactionKey', this.value)" onchange="checkAllFieldsFilled()">
+                        </div>
+                        <div class="form-group">
+                            <label for="clientKey">Client Key</label>
+                            <input type="password" id="clientKey" placeholder="Enter Client Key" oninput="updateGatewaySpecificSetting('clientKey', this.value)" onchange="checkAllFieldsFilled()">
+                        </div>
+                    `
+                },
+                'tsys-transit': {
+                    'card-not-present': `
+                        <div class="form-group">
+                            <label for="username">Username</label>
+                            <input type="text" id="username" placeholder="Enter Username" oninput="updateGatewaySpecificSetting('username', this.value)" onchange="checkAllFieldsFilled()">
+                        </div>
+                        <div class="form-group">
+                            <label for="password">Password</label>
+                            <input type="password" id="password" placeholder="Enter Password" oninput="updateGatewaySpecificSetting('password', this.value)" onchange="checkAllFieldsFilled()">
+                        </div>
+                        <div class="form-group">
+                            <label for="merchantId">Merchant ID</label>
+                            <input type="text" id="merchantId" placeholder="Enter Merchant ID" oninput="updateGatewaySpecificSetting('merchantId', this.value)" onchange="checkAllFieldsFilled()">
+                        </div>
+                        <div class="form-group">
+                            <label>URL and Device ID Configurations</label>
+                            <div id="urlDeviceConfigs">
+                                <div class="url-device-pair" id="urlDevicePair_0">
+                                    <div style="display: flex; gap: 10px; align-items: end; margin-bottom: 10px;">
+                                        <div style="flex: 1;">
+                                            <label for="url_0">URL</label>
+                                            <select id="url_0" onchange="updateUrlDevicePair(0)">
+                                                <option value="">Select URL...</option>
+                                                <option value="quanticcharge.com">quanticcharge.com</option>
+                                                <option value="order.myquantic.com">order.myquantic.com</option>
+                                                <option value="myquantic.com">myquantic.com</option>
+                                            </select>
+                                        </div>
+                                        <div style="flex: 1;">
+                                            <label for="deviceId_0">Device ID</label>
+                                            <input type="text" id="deviceId_0" placeholder="Enter Device ID" oninput="updateUrlDevicePair(0)">
+                                        </div>
+                                        <button type="button" onclick="removeUrlDevicePair(0)" style="background: #dc3545; color: white; border: none; padding: 10px 15px; border-radius: 8px; cursor: pointer; height: 47px;" disabled>Remove</button>
+                                    </div>
+                                </div>
+                            </div>
+                            <button type="button" onclick="addUrlDevicePair()" style="background: #28a745; color: white; border: none; padding: 10px 15px; border-radius: 8px; cursor: pointer; margin-top: 10px;">+ Add Another URL/Device</button>
+                        </div>
+                    `
+                },
+                'quest': {
+                    'card-not-present': `
+                        <div class="form-group">
+                            <label for="publicKey">Public Key</label>
+                            <input type="text" id="publicKey" placeholder="Enter Public Key" oninput="updateGatewaySpecificSetting('publicKey', this.value)" onchange="checkAllFieldsFilled()">
+                        </div>
+                        <div class="form-group">
+                            <label for="secretKey">Secret Key</label>
+                            <input type="text" id="secretKey" placeholder="Enter Secret Key" oninput="updateGatewaySpecificSetting('secretKey', this.value)" onchange="checkAllFieldsFilled()">
+                        </div>
+                    `
+                },
+                'elavon': {
+                    'lite': `
+                        <div class="form-group">
+                            <label for="merchantId">Merchant ID</label>
+                            <input type="text" id="merchantId" placeholder="Enter Merchant ID" oninput="updateGatewaySpecificSetting('merchantId', this.value)" onchange="checkAllFieldsFilled()">
+                        </div>
+                    `,
+                    'pos': `
+                        <div class="form-group">
+                            <label for="merchantId">Merchant ID</label>
+                            <input type="text" id="merchantId" placeholder="Enter Merchant ID" oninput="updateGatewaySpecificSetting('merchantId', this.value)" onchange="checkAllFieldsFilled()">
+                        </div>
+                    `,
+                    'card-not-present': `
+                        <div class="form-group">
+                            <label for="merchantId">Merchant ID</label>
+                            <input type="text" id="merchantId" placeholder="Enter Merchant ID" oninput="updateGatewaySpecificSetting('merchantId', this.value)" onchange="checkAllFieldsFilled()">
+                        </div>
+                    `
+                },
+                'payroc': {
+                    'lite': `
+                        <div class="form-group">
+                            <label for="serialNumber">Serial Number</label>
+                            <input type="text" id="serialNumber" placeholder="Enter Serial Number" oninput="updateGatewaySpecificSetting('serialNumber', this.value)" onchange="checkAllFieldsFilled()">
+                        </div>
+                        <div class="form-group">
+                            <label for="merchantId">Merchant ID</label>
+                            <input type="text" id="merchantId" placeholder="Enter Merchant ID" oninput="updateGatewaySpecificSetting('merchantId', this.value)" onchange="checkAllFieldsFilled()">
+                        </div>
+                        <div class="form-group">
+                            <label for="contactName">Contact Name</label>
+                            <input type="text" id="contactName" placeholder="Enter Contact Name" oninput="updateGatewaySpecificSetting('contactName', this.value)" onchange="checkAllFieldsFilled()">
+                        </div>
+                        <div class="form-group">
+                            <label for="phone">Phone</label>
+                            <input type="tel" id="phone" placeholder="Enter Phone Number" oninput="updateGatewaySpecificSetting('phone', this.value)" onchange="checkAllFieldsFilled()">
+                        </div>
+                        <div class="form-group">
+                            <label for="email">Email</label>
+                            <input type="email" id="email" placeholder="Enter Email Address" oninput="updateGatewaySpecificSetting('email', this.value)" onchange="checkAllFieldsFilled()">
+                        </div>
+                        <div class="form-group">
+                            <label for="address">Address</label>
+                            <input type="text" id="address" placeholder="Enter Street Address" oninput="updateGatewaySpecificSetting('address', this.value)" onchange="checkAllFieldsFilled()">
+                        </div>
+                        <div class="form-group">
+                            <label for="city">City</label>
+                            <input type="text" id="city" placeholder="Enter City" oninput="updateGatewaySpecificSetting('city', this.value)" onchange="checkAllFieldsFilled()">
+                        </div>
+                        <div class="form-group">
+                            <label for="state">State</label>
+                            <input type="text" id="state" placeholder="Enter State" oninput="updateGatewaySpecificSetting('state', this.value)" onchange="checkAllFieldsFilled()">
+                        </div>
+                        <div class="form-group">
+                            <label for="zipCode">Zip Code</label>
+                            <input type="text" id="zipCode" placeholder="Enter Zip Code" oninput="updateGatewaySpecificSetting('zipCode', this.value)" onchange="checkAllFieldsFilled()">
+                        </div>
+                    `,
+                    'pos': `
+                        <div class="form-group">
+                            <label for="serialNumber">Serial Number</label>
+                            <input type="text" id="serialNumber" placeholder="Enter Serial Number" oninput="updateGatewaySpecificSetting('serialNumber', this.value)" onchange="checkAllFieldsFilled()">
+                        </div>
+                        <div class="form-group">
+                            <label for="merchantId">Merchant ID</label>
+                            <input type="text" id="merchantId" placeholder="Enter Merchant ID" oninput="updateGatewaySpecificSetting('merchantId', this.value)" onchange="checkAllFieldsFilled()">
+                        </div>
+                        <div class="form-group">
+                            <label for="contactName">Contact Name</label>
+                            <input type="text" id="contactName" placeholder="Enter Contact Name" oninput="updateGatewaySpecificSetting('contactName', this.value)" onchange="checkAllFieldsFilled()">
+                        </div>
+                        <div class="form-group">
+                            <label for="phone">Phone</label>
+                            <input type="tel" id="phone" placeholder="Enter Phone Number" oninput="updateGatewaySpecificSetting('phone', this.value)" onchange="checkAllFieldsFilled()">
+                        </div>
+                        <div class="form-group">
+                            <label for="email">Email</label>
+                            <input type="email" id="email" placeholder="Enter Email Address" oninput="updateGatewaySpecificSetting('email', this.value)" onchange="checkAllFieldsFilled()">
+                        </div>
+                        <div class="form-group">
+                            <label for="address">Address</label>
+                            <input type="text" id="address" placeholder="Enter Street Address" oninput="updateGatewaySpecificSetting('address', this.value)" onchange="checkAllFieldsFilled()">
+                        </div>
+                        <div class="form-group">
+                            <label for="city">City</label>
+                            <input type="text" id="city" placeholder="Enter City" oninput="updateGatewaySpecificSetting('city', this.value)" onchange="checkAllFieldsFilled()">
+                        </div>
+                        <div class="form-group">
+                            <label for="state">State</label>
+                            <input type="text" id="state" placeholder="Enter State" oninput="updateGatewaySpecificSetting('state', this.value)" onchange="checkAllFieldsFilled()">
+                        </div>
+                        <div class="form-group">
+                            <label for="zipCode">Zip Code</label>
+                            <input type="text" id="zipCode" placeholder="Enter Zip Code" oninput="updateGatewaySpecificSetting('zipCode', this.value)" onchange="checkAllFieldsFilled()">
+                        </div>
+                    `,
+                    'card-not-present': `
+                        <div class="form-group">
+                            <label for="serialNumber">Serial Number</label>
+                            <input type="text" id="serialNumber" placeholder="Enter Serial Number" oninput="updateGatewaySpecificSetting('serialNumber', this.value)" onchange="checkAllFieldsFilled()">
+                        </div>
+                        <div class="form-group">
+                            <label for="merchantId">Merchant ID</label>
+                            <input type="text" id="merchantId" placeholder="Enter Merchant ID" oninput="updateGatewaySpecificSetting('merchantId', this.value)" onchange="checkAllFieldsFilled()">
+                        </div>
+                        <div class="form-group">
+                            <label for="contactName">Contact Name</label>
+                            <input type="text" id="contactName" placeholder="Enter Contact Name" oninput="updateGatewaySpecificSetting('contactName', this.value)" onchange="checkAllFieldsFilled()">
+                        </div>
+                        <div class="form-group">
+                            <label for="phone">Phone</label>
+                            <input type="tel" id="phone" placeholder="Enter Phone Number" oninput="updateGatewaySpecificSetting('phone', this.value)" onchange="checkAllFieldsFilled()">
+                        </div>
+                        <div class="form-group">
+                            <label for="email">Email</label>
+                            <input type="email" id="email" placeholder="Enter Email Address" oninput="updateGatewaySpecificSetting('email', this.value)" onchange="checkAllFieldsFilled()">
+                        </div>
+                        <div class="form-group">
+                            <label for="address">Address</label>
+                            <input type="text" id="address" placeholder="Enter Street Address" oninput="updateGatewaySpecificSetting('address', this.value)" onchange="checkAllFieldsFilled()">
+                        </div>
+                        <div class="form-group">
+                            <label for="city">City</label>
+                            <input type="text" id="city" placeholder="Enter City" oninput="updateGatewaySpecificSetting('city', this.value)" onchange="checkAllFieldsFilled()">
+                        </div>
+                        <div class="form-group">
+                            <label for="state">State</label>
+                            <input type="text" id="state" placeholder="Enter State" oninput="updateGatewaySpecificSetting('state', this.value)" onchange="checkAllFieldsFilled()">
+                        </div>
+                        <div class="form-group">
+                            <label for="zipCode">Zip Code</label>
+                            <input type="text" id="zipCode" placeholder="Enter Zip Code" oninput="updateGatewaySpecificSetting('zipCode', this.value)" onchange="checkAllFieldsFilled()">
+                        </div>
+                    `
+                },
+                'pax-qst-lite-apio': {
+                    'lite': `
+                        <div class="form-group">
+                            <label for="merchantId">Merchant ID</label>
+                            <input type="text" id="merchantId" placeholder="Enter Merchant ID" oninput="updateGatewaySpecificSetting('merchantId', this.value)" onchange="checkAllFieldsFilled()">
+                        </div>
+                        <div class="form-group">
+                            <label for="serialNumber">Serial Number</label>
+                            <input type="text" id="serialNumber" placeholder="Enter Serial Number" oninput="updateGatewaySpecificSetting('serialNumber', this.value)" onchange="checkAllFieldsFilled()">
+                        </div>
+                        <div class="form-group">
+                            <label>Terminal Type (Optional)</label>
+                            <div style="margin-top: 10px;">
+                                <label style="display: flex; align-items: center; cursor: pointer; margin-bottom: 10px;">
+                                    <input type="radio" name="paxDirectTerminalType" value="E700" onchange="updateGatewaySpecificSetting('terminalType', this.value)" style="margin-right: 10px;">
+                                    E700
+                                </label>
+                                <label style="display: flex; align-items: center; cursor: pointer; margin-bottom: 10px;">
+                                    <input type="radio" name="paxDirectTerminalType" value="E800" onchange="updateGatewaySpecificSetting('terminalType', this.value)" style="margin-right: 10px;">
+                                    E800
+                                </label>
+                                <label style="display: flex; align-items: center; cursor: pointer; margin-bottom: 10px;">
+                                    <input type="radio" name="paxDirectTerminalType" value="" onchange="updateGatewaySpecificSetting('terminalType', this.value)" style="margin-right: 10px;">
+                                    None Selected
+                                </label>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>Optional Features</label>
+                            <div style="margin-top: 15px; display: grid; grid-template-columns: 1fr; gap: 10px;">
+                                <label style="display: flex; align-items: center; cursor: pointer; padding: 10px; background: #f8f9fa; border-radius: 8px;">
+                                    <input type="checkbox" onchange="updatePaxFeature('enableExternalTipDisplay', this.checked)" style="margin-right: 10px;">
+                                    Enable External Tip Display
+                                </label>
+                                <label style="display: flex; align-items: center; cursor: pointer; padding: 10px; background: #f8f9fa; border-radius: 8px;">
+                                    <input type="checkbox" onchange="updatePaxFeature('hideCashAndCardPrompt', this.checked)" style="margin-right: 10px;">
+                                    Hide Cash and Card Prompt
+                                </label>
+                                <label style="display: flex; align-items: center; cursor: pointer; padding: 10px; background: #f8f9fa; border-radius: 8px;">
+                                    <input type="checkbox" onchange="updatePaxFeature('enableReaderTip', this.checked)" style="margin-right: 10px;">
+                                    Enable Reader Tip
+                                </label>
+                                <label style="display: flex; align-items: center; cursor: pointer; padding: 10px; background: #f8f9fa; border-radius: 8px;">
+                                    <input type="checkbox" onchange="updatePaxFeature('enableDebitPin', this.checked)" style="margin-right: 10px;">
+                                    Enable Debit Pin
+                                </label>
+                                <label style="display: flex; align-items: center; cursor: pointer; padding: 10px; background: #f8f9fa; border-radius: 8px;">
+                                    <input type="checkbox" onchange="updatePaxFeature('disableToken', this.checked)" style="margin-right: 10px;">
+                                    Disable Token
+                                </label>
+                            </div>
+                        </div>
+                    `,
+                    'pos': `
+                        <div class="form-group">
+                            <label for="merchantId">Merchant ID</label>
+                            <input type="text" id="merchantId" placeholder="Enter Merchant ID" oninput="updateGatewaySpecificSetting('merchantId', this.value)" onchange="checkAllFieldsFilled()">
+                        </div>
+                        <div class="form-group">
+                            <label for="serialNumber">Serial Number</label>
+                            <input type="text" id="serialNumber" placeholder="Enter Serial Number" oninput="updateGatewaySpecificSetting('serialNumber', this.value)" onchange="checkAllFieldsFilled()">
+                        </div>
+                        <div class="form-group">
+                            <label>Terminal Type (Optional)</label>
+                            <div style="margin-top: 10px;">
+                                <label style="display: flex; align-items: center; cursor: pointer; margin-bottom: 10px;">
+                                    <input type="radio" name="paxDirectTerminalType" value="E700" onchange="updateGatewaySpecificSetting('terminalType', this.value)" style="margin-right: 10px;">
+                                    E700
+                                </label>
+                                <label style="display: flex; align-items: center; cursor: pointer; margin-bottom: 10px;">
+                                    <input type="radio" name="paxDirectTerminalType" value="E800" onchange="updateGatewaySpecificSetting('terminalType', this.value)" style="margin-right: 10px;">
+                                    E800
+                                </label>
+                                <label style="display: flex; align-items: center; cursor: pointer; margin-bottom: 10px;">
+                                    <input type="radio" name="paxDirectTerminalType" value="" onchange="updateGatewaySpecificSetting('terminalType', this.value)" style="margin-right: 10px;">
+                                    None Selected
+                                </label>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>Optional Features</label>
+                            <div style="margin-top: 15px; display: grid; grid-template-columns: 1fr; gap: 10px;">
+                                <label style="display: flex; align-items: center; cursor: pointer; padding: 10px; background: #f8f9fa; border-radius: 8px;">
+                                    <input type="checkbox" onchange="updatePaxFeature('enableExternalTipDisplay', this.checked)" style="margin-right: 10px;">
+                                    Enable External Tip Display
+                                </label>
+                                <label style="display: flex; align-items: center; cursor: pointer; padding: 10px; background: #f8f9fa; border-radius: 8px;">
+                                    <input type="checkbox" onchange="updatePaxFeature('hideCashAndCardPrompt', this.checked)" style="margin-right: 10px;">
+                                    Hide Cash and Card Prompt
+                                </label>
+                                <label style="display: flex; align-items: center; cursor: pointer; padding: 10px; background: #f8f9fa; border-radius: 8px;">
+                                    <input type="checkbox" onchange="updatePaxFeature('enableReaderTip', this.checked)" style="margin-right: 10px;">
+                                    Enable Reader Tip
+                                </label>
+                                <label style="display: flex; align-items: center; cursor: pointer; padding: 10px; background: #f8f9fa; border-radius: 8px;">
+                                    <input type="checkbox" onchange="updatePaxFeature('enableDebitPin', this.checked)" style="margin-right: 10px;">
+                                    Enable Debit Pin
+                                </label>
+                                <label style="display: flex; align-items: center; cursor: pointer; padding: 10px; background: #f8f9fa; border-radius: 8px;">
+                                    <input type="checkbox" onchange="updatePaxFeature('disableToken', this.checked)" style="margin-right: 10px;">
+                                    Disable Token
+                                </label>
+                            </div>
+                        </div>
+                    `,
+                    'card-not-present': `
+                        <div class="form-group">
+                            <label for="merchantId">Merchant ID</label>
+                            <input type="text" id="merchantId" placeholder="Enter Merchant ID" oninput="updateGatewaySpecificSetting('merchantId', this.value)" onchange="checkAllFieldsFilled()">
+                        </div>
+                        <div class="form-group">
+                            <label for="serialNumber">Serial Number</label>
+                            <input type="text" id="serialNumber" placeholder="Enter Serial Number" oninput="updateGatewaySpecificSetting('serialNumber', this.value)" onchange="checkAllFieldsFilled()">
+                        </div>
+                        <div class="form-group">
+                            <label>Terminal Type (Optional)</label>
+                            <div style="margin-top: 10px;">
+                                <label style="display: flex; align-items: center; cursor: pointer; margin-bottom: 10px;">
+                                    <input type="radio" name="paxTerminalType" value="E700" onchange="updateGatewaySpecificSetting('terminalType', this.value)" style="margin-right: 10px;">
+                                    E700
+                                </label>
+                                <label style="display: flex; align-items: center; cursor: pointer; margin-bottom: 10px;">
+                                    <input type="radio" name="paxTerminalType" value="E800" onchange="updateGatewaySpecificSetting('terminalType', this.value)" style="margin-right: 10px;">
+                                    E800
+                                </label>
+                                <label style="display: flex; align-items: center; cursor: pointer; margin-bottom: 10px;">
+                                    <input type="radio" name="paxTerminalType" value="" onchange="updateGatewaySpecificSetting('terminalType', this.value)" style="margin-right: 10px;">
+                                    None Selected
+                                </label>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>Optional Features</label>
+                            <div style="margin-top: 15px; display: grid; grid-template-columns: 1fr; gap: 10px;">
+                                <label style="display: flex; align-items: center; cursor: pointer; padding: 10px; background: #f8f9fa; border-radius: 8px;">
+                                    <input type="checkbox" onchange="updatePaxFeature('enableExternalTipDisplay', this.checked)" style="margin-right: 10px;">
+                                    Enable External Tip Display
+                                </label>
+                                <label style="display: flex; align-items: center; cursor: pointer; padding: 10px; background: #f8f9fa; border-radius: 8px;">
+                                    <input type="checkbox" onchange="updatePaxFeature('hideCashAndCardPrompt', this.checked)" style="margin-right: 10px;">
+                                    Hide Cash and Card Prompt
+                                </label>
+                                <label style="display: flex; align-items: center; cursor: pointer; padding: 10px; background: #f8f9fa; border-radius: 8px;">
+                                    <input type="checkbox" onchange="updatePaxFeature('enableReaderTip', this.checked)" style="margin-right: 10px;">
+                                    Enable Reader Tip
+                                </label>
+                                <label style="display: flex; align-items: center; cursor: pointer; padding: 10px; background: #f8f9fa; border-radius: 8px;">
+                                    <input type="checkbox" onchange="updatePaxFeature('enableDebitPin', this.checked)" style="margin-right: 10px;">
+                                    Enable Debit Pin
+                                </label>
+                                <label style="display: flex; align-items: center; cursor: pointer; padding: 10px; background: #f8f9fa; border-radius: 8px;">
+                                    <input type="checkbox" onchange="updatePaxFeature('disableToken', this.checked)" style="margin-right: 10px;">
+                                    Disable Token
+                                </label>
+                            </div>
+                        </div>
+                    `
+                },
+                'pax-direct-pos': {
+                    'lite': `
+                        <div class="form-group">
+                            <label for="merchantId">Merchant ID</label>
+                            <input type="text" id="merchantId" placeholder="Enter Merchant ID" oninput="updateGatewaySpecificSetting('merchantId', this.value)" onchange="checkAllFieldsFilled()">
+                        </div>
+                        <div class="form-group">
+                            <label for="serialNumber">Serial Number</label>
+                            <input type="text" id="serialNumber" placeholder="Enter Serial Number" oninput="updateGatewaySpecificSetting('serialNumber', this.value)" onchange="checkAllFieldsFilled()">
+                        </div>
+                        <div class="form-group">
+                            <label>Terminal Type (Optional)</label>
+                            <div style="margin-top: 10px;">
+                                <label style="display: flex; align-items: center; cursor: pointer; margin-bottom: 10px;">
+                                    <input type="radio" name="paxTerminalType" value="E700" onchange="updateGatewaySpecificSetting('terminalType', this.value)" style="margin-right: 10px;">
+                                    E700
+                                </label>
+                                <label style="display: flex; align-items: center; cursor: pointer; margin-bottom: 10px;">
+                                    <input type="radio" name="paxTerminalType" value="E800" onchange="updateGatewaySpecificSetting('terminalType', this.value)" style="margin-right: 10px;">
+                                    E800
+                                </label>
+                                <label style="display: flex; align-items: center; cursor: pointer; margin-bottom: 10px;">
+                                    <input type="radio" name="paxTerminalType" value="" onchange="updateGatewaySpecificSetting('terminalType', this.value)" style="margin-right: 10px;">
+                                    None Selected
+                                </label>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>Optional Features</label>
+                            <div style="margin-top: 15px; display: grid; grid-template-columns: 1fr; gap: 10px;">
+                                <label style="display: flex; align-items: center; cursor: pointer; padding: 10px; background: #f8f9fa; border-radius: 8px;">
+                                    <input type="checkbox" onchange="updatePaxFeature('enableExternalTipDisplay', this.checked)" style="margin-right: 10px;">
+                                    Enable External Tip Display
+                                </label>
+                                <label style="display: flex; align-items: center; cursor: pointer; padding: 10px; background: #f8f9fa; border-radius: 8px;">
+                                    <input type="checkbox" onchange="updatePaxFeature('hideCashAndCardPrompt', this.checked)" style="margin-right: 10px;">
+                                    Hide Cash and Card Prompt
+                                </label>
+                                <label style="display: flex; align-items: center; cursor: pointer; padding: 10px; background: #f8f9fa; border-radius: 8px;">
+                                    <input type="checkbox" onchange="updatePaxFeature('enableReaderTip', this.checked)" style="margin-right: 10px;">
+                                    Enable Reader Tip
+                                </label>
+                                <label style="display: flex; align-items: center; cursor: pointer; padding: 10px; background: #f8f9fa; border-radius: 8px;">
+                                    <input type="checkbox" onchange="updatePaxFeature('enableDebitPin', this.checked)" style="margin-right: 10px;">
+                                    Enable Debit Pin
+                                </label>
+                                <label style="display: flex; align-items: center; cursor: pointer; padding: 10px; background: #f8f9fa; border-radius: 8px;">
+                                    <input type="checkbox" onchange="updatePaxFeature('disableToken', this.checked)" style="margin-right: 10px;">
+                                    Disable Token
+                                </label>
+                            </div>
+                        </div>
+                    `,
+                    'pos': `
+                        <div class="form-group">
+                            <label for="merchantId">Merchant ID</label>
+                            <input type="text" id="merchantId" placeholder="Enter Merchant ID" oninput="updateGatewaySpecificSetting('merchantId', this.value)" onchange="checkAllFieldsFilled()">
+                        </div>
+                        <div class="form-group">
+                            <label for="serialNumber">Serial Number</label>
+                            <input type="text" id="serialNumber" placeholder="Enter Serial Number" oninput="updateGatewaySpecificSetting('serialNumber', this.value)" onchange="checkAllFieldsFilled()">
+                        </div>
+                        <div class="form-group">
+                            <label>Terminal Type (Optional)</label>
+                            <div style="margin-top: 10px;">
+                                <label style="display: flex; align-items: center; cursor: pointer; margin-bottom: 10px;">
+                                    <input type="radio" name="paxTerminalType" value="E700" onchange="updateGatewaySpecificSetting('terminalType', this.value)" style="margin-right: 10px;">
+                                    E700
+                                </label>
+                                <label style="display: flex; align-items: center; cursor: pointer; margin-bottom: 10px;">
+                                    <input type="radio" name="paxTerminalType" value="E800" onchange="updateGatewaySpecificSetting('terminalType', this.value)" style="margin-right: 10px;">
+                                    E800
+                                </label>
+                                <label style="display: flex; align-items: center; cursor: pointer; margin-bottom: 10px;">
+                                    <input type="radio" name="paxTerminalType" value="" onchange="updateGatewaySpecificSetting('terminalType', this.value)" style="margin-right: 10px;">
+                                    None Selected
+                                </label>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>Optional Features</label>
+                            <div style="margin-top: 15px; display: grid; grid-template-columns: 1fr; gap: 10px;">
+                                <label style="display: flex; align-items: center; cursor: pointer; padding: 10px; background: #f8f9fa; border-radius: 8px;">
+                                    <input type="checkbox" onchange="updatePaxFeature('enableExternalTipDisplay', this.checked)" style="margin-right: 10px;">
+                                    Enable External Tip Display
+                                </label>
+                                <label style="display: flex; align-items: center; cursor: pointer; padding: 10px; background: #f8f9fa; border-radius: 8px;">
+                                    <input type="checkbox" onchange="updatePaxFeature('hideCashAndCardPrompt', this.checked)" style="margin-right: 10px;">
+                                    Hide Cash and Card Prompt
+                                </label>
+                                <label style="display: flex; align-items: center; cursor: pointer; padding: 10px; background: #f8f9fa; border-radius: 8px;">
+                                    <input type="checkbox" onchange="updatePaxFeature('enableReaderTip', this.checked)" style="margin-right: 10px;">
+                                    Enable Reader Tip
+                                </label>
+                                <label style="display: flex; align-items: center; cursor: pointer; padding: 10px; background: #f8f9fa; border-radius: 8px;">
+                                    <input type="checkbox" onchange="updatePaxFeature('enableDebitPin', this.checked)" style="margin-right: 10px;">
+                                    Enable Debit Pin
+                                </label>
+                                <label style="display: flex; align-items: center; cursor: pointer; padding: 10px; background: #f8f9fa; border-radius: 8px;">
+                                    <input type="checkbox" onchange="updatePaxFeature('disableToken', this.checked)" style="margin-right: 10px;">
+                                    Disable Token
+                                </label>
+                            </div>
+                        </div>
+                    `,
+                    'card-not-present': `
+                        <div class="form-group">
+                            <label for="merchantId">Merchant ID</label>
+                            <input type="text" id="merchantId" placeholder="Enter Merchant ID" oninput="updateGatewaySpecificSetting('merchantId', this.value)" onchange="checkAllFieldsFilled()">
+                        </div>
+                        <div class="form-group">
+                            <label for="serialNumber">Serial Number</label>
+                            <input type="text" id="serialNumber" placeholder="Enter Serial Number" oninput="updateGatewaySpecificSetting('serialNumber', this.value)" onchange="checkAllFieldsFilled()">
+                        </div>
+                        <div class="form-group">
+                            <label>Terminal Type (Optional)</label>
+                            <div style="margin-top: 10px;">
+                                <label style="display: flex; align-items: center; cursor: pointer; margin-bottom: 10px;">
+                                    <input type="radio" name="paxTerminalType" value="E700" onchange="updateGatewaySpecificSetting('terminalType', this.value)" style="margin-right: 10px;">
+                                    E700
+                                </label>
+                                <label style="display: flex; align-items: center; cursor: pointer; margin-bottom: 10px;">
+                                    <input type="radio" name="paxTerminalType" value="E800" onchange="updateGatewaySpecificSetting('terminalType', this.value)" style="margin-right: 10px;">
+                                    E800
+                                </label>
+                                <label style="display: flex; align-items: center; cursor: pointer; margin-bottom: 10px;">
+                                    <input type="radio" name="paxTerminalType" value="" onchange="updateGatewaySpecificSetting('terminalType', this.value)" style="margin-right: 10px;">
+                                    None Selected
+                                </label>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>Optional Features</label>
+                            <div style="margin-top: 15px; display: grid; grid-template-columns: 1fr; gap: 10px;">
+                                <label style="display: flex; align-items: center; cursor: pointer; padding: 10px; background: #f8f9fa; border-radius: 8px;">
+                                    <input type="checkbox" onchange="updatePaxFeature('enableExternalTipDisplay', this.checked)" style="margin-right: 10px;">
+                                    Enable External Tip Display
+                                </label>
+                                <label style="display: flex; align-items: center; cursor: pointer; padding: 10px; background: #f8f9fa; border-radius: 8px;">
+                                    <input type="checkbox" onchange="updatePaxFeature('hideCashAndCardPrompt', this.checked)" style="margin-right: 10px;">
+                                    Hide Cash and Card Prompt
+                                </label>
+                                <label style="display: flex; align-items: center; cursor: pointer; padding: 10px; background: #f8f9fa; border-radius: 8px;">
+                                    <input type="checkbox" onchange="updatePaxFeature('enableReaderTip', this.checked)" style="margin-right: 10px;">
+                                    Enable Reader Tip
+                                </label>
+                                <label style="display: flex; align-items: center; cursor: pointer; padding: 10px; background: #f8f9fa; border-radius: 8px;">
+                                    <input type="checkbox" onchange="updatePaxFeature('enableDebitPin', this.checked)" style="margin-right: 10px;">
+                                    Enable Debit Pin
+                                </label>
+                                <label style="display: flex; align-items: center; cursor: pointer; padding: 10px; background: #f8f9fa; border-radius: 8px;">
+                                    <input type="checkbox" onchange="updatePaxFeature('disableToken', this.checked)" style="margin-right: 10px;">
+                                    Disable Token
+                                </label>
+                            </div>
+                        </div>
+                    `
+                }
+            };
+
+            return gatewayConfigs[gateway] ? gatewayConfigs[gateway][appType] : null;
+        }
+
+        function updateGatewaySpecificSetting(key, value) {
+            if (!config.gatewaySettings.specific) {
+                config.gatewaySettings.specific = {};
+            }
+            config.gatewaySettings.specific[key] = value;
+        }
+
+        function updatePaxFeature(feature, checked) {
+            if (!config.gatewaySettings.specific) {
+                config.gatewaySettings.specific = {};
+            }
+            if (!config.gatewaySettings.specific.features) {
+                config.gatewaySettings.specific.features = {};
+            }
+            config.gatewaySettings.specific.features[feature] = checked;
+        }
+
+        function checkAllFieldsFilled() {
+            const gateway = config.paymentGateway;
+            const appType = config.appType;
+            
+            let requiredFields = [];
+            
+            if (gateway === 'cardconnect' && appType === 'pos') {
+                requiredFields = ['manufacturer', 'model', 'username', 'password', 'serialNumbers', 'merchantId', 'url'];
+            } else if (gateway === 'dejavoo') {
+                // Special handling for Dejavoo - check relationship type first
+                const relationshipChecked = document.querySelector('input[name="dejavooRelationship"]:checked');
+                if (!relationshipChecked) {
+                    return; // Don't proceed if no relationship type is selected
+                }
+                
+                // Check other required fields based on app type
+                if (appType === 'lite') {
+                    requiredFields = ['tpn', 'authToken'];
+                } else if (appType === 'pos') {
+                    requiredFields = ['tpn', 'authToken', 'registerId', 'authKey'];
+                } else if (appType === 'card-not-present') {
+                    requiredFields = ['tpn', 'authToken', 'registerId', 'authKey'];
+                }
+            } else if (gateway === 'authnet' && appType === 'card-not-present') {
+                requiredFields = ['merchantId', 'apiLogin', 'transactionKey', 'clientKey'];
+            } else if (gateway === 'tsys-transit' && appType === 'card-not-present') {
+                // Check basic required fields
+                const basicFields = ['username', 'password', 'merchantId'];
+                const basicFieldsFilled = basicFields.every(field => {
+                    const element = document.getElementById(field);
+                    return element && element.value.trim() !== '';
+                });
+                
+                // Check URL/Device pairs
+                let urlDevicePairsFilled = false;
+                if (config.gatewaySettings.specific && config.gatewaySettings.specific.urlDevicePairs) {
+                    const pairs = Object.values(config.gatewaySettings.specific.urlDevicePairs);
+                    urlDevicePairsFilled = pairs.length > 0 && pairs.every(pair => 
+                        pair.url && pair.url.trim() !== '' && 
+                        pair.deviceId && pair.deviceId.trim() !== ''
+                    );
+                }
+                
+                const allFilled = basicFieldsFilled && urlDevicePairsFilled;
+                
+                // Override the normal field checking for TSYS TransIT
+                if (allFilled) {
+                    setTimeout(() => {
+                        showStandardGatewayConfig();
+                        document.getElementById('step5').classList.remove('hidden');
+                    }, 500);
+                }
+                return; // Exit early to skip normal validation
+            } else if (gateway === 'quest' && appType === 'card-not-present') {
+                requiredFields = ['publicKey', 'secretKey'];
+            } else if (gateway === 'elavon') {
+                requiredFields = ['merchantId'];
+            } else if (gateway === 'payroc' || gateway === 'payroc-gateway' || gateway === 'payroc-gateway-uat') {
+                requiredFields = ['serialNumber', 'merchantId', 'contactName', 'phone', 'email', 'address', 'city', 'state', 'zipCode'];
+            } else if (gateway === 'pax-qst-lite-apio' || gateway === 'pax-direct-pos') {
+                requiredFields = ['merchantId', 'serialNumber'];
+            }
+            
+            // Check if all required fields are filled
+            const allFilled = requiredFields.every(field => {
+                const element = document.getElementById(field);
+                return element && element.value.trim() !== '';
+            });
+            
+            if (allFilled) {
+                // Show standard gateway config after a short delay
+                setTimeout(() => {
+                    showStandardGatewayConfig();
+                    document.getElementById('step5').classList.remove('hidden');
+                }, 500);
+            }
+        }
+
+        function showStandardGatewayConfig() {
+            const configDiv = document.getElementById('gatewayConfig');
+            
+            // Standard configuration fields that all gateways have
+            const configHTML = `
+                <div class="form-group">
+                    <label for="requestTimeout">Request Timeout (seconds)</label>
+                    <input type="number" id="requestTimeout" placeholder="30" min="1" max="300" oninput="updateGatewaySetting('requestTimeout', this.value)">
+                </div>
+                <div class="form-group">
+                    <label for="program">Program</label>
+                    <select id="program" onchange="updateGatewaySetting('program', this.value)">
+                        <option value="">Select program type...</option>
+                        <option value="cash-discounting">Cash Discounting</option>
+                        <option value="cash-discounting-quest">Cash Discounting (Quest)</option>
+                        <option value="consumer-choice">Consumer Choice</option>
+                        <option value="consumer-choice-quest">Consumer Choice (Quest)</option>
+                        <option value="non-cash-adjustment">Non Cash Adjustment</option>
+                        <option value="non-cash-adjustment-quest">Non Cash Adjustment (Quest)</option>
+                        <option value="no-program">No Program</option>
+                        <option value="surcharging-quest">Surcharging (Quest)</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="label">Label</label>
+                    <input type="text" id="label" placeholder="Enter label" oninput="updateGatewaySetting('label', this.value)">
+                </div>
+                <div class="form-group">
+                    <label for="value">Value</label>
+                    <input type="text" id="value" placeholder="Enter value" oninput="updateGatewaySetting('value', this.value)">
+                </div>
+                <div class="form-group">
+                    <label for="valueType">Value Type</label>
+                    <select id="valueType" onchange="updateGatewaySetting('valueType', this.value)">
+                        <option value="">Select value type...</option>
+                        <option value="percentage">Percentage</option>
+                        <option value="amount">Amount</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="preAuthTabAmount">Pre Auth Tab Amount</label>
+                    <input type="number" id="preAuthTabAmount" placeholder="0.00" min="0" step="0.01" oninput="updateGatewaySetting('preAuthTabAmount', this.value)">
+                </div>
+                <div class="form-group">
+                    <label for="tipPrompt">Tip Prompt</label>
+                    <div style="display: flex; align-items: center; gap: 10px; margin-top: 10px;">
+                        <label style="display: flex; align-items: center; cursor: pointer; margin: 0;">
+                            <input type="radio" name="tipPrompt" value="off" onchange="updateGatewaySetting('tipPrompt', this.value)" style="margin-right: 8px;">
+                            Off
+                        </label>
+                        <label style="display: flex; align-items: center; cursor: pointer; margin: 0;">
+                            <input type="radio" name="tipPrompt" value="on" onchange="updateGatewaySetting('tipPrompt', this.value)" style="margin-right: 8px;">
+                            On
+                        </label>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="enableTipAdjustment">Enable Tip Adjustment</label>
+                    <div style="display: flex; align-items: center; gap: 10px; margin-top: 10px;">
+                        <label style="display: flex; align-items: center; cursor: pointer; margin: 0;">
+                            <input type="radio" name="enableTipAdjustment" value="off" onchange="updateGatewaySetting('enableTipAdjustment', this.value)" style="margin-right: 8px;">
+                            Off
+                        </label>
+                        <label style="display: flex; align-items: center; cursor: pointer; margin: 0;">
+                            <input type="radio" name="enableTipAdjustment" value="on" onchange="updateGatewaySetting('enableTipAdjustment', this.value)" style="margin-right: 8px;">
+                            On
+                        </label>
+                    </div>
+                </div>
+            `;
+
+            configDiv.innerHTML = configHTML;
+            
+            setTimeout(() => {
+                showFeatureConfig();
+                document.getElementById('step6').classList.remove('hidden');
+            }, 500);
+        }
+
+        function showGatewayConfig(gateway) {
+            const configDiv = document.getElementById('gatewayConfig');
+            
+            // All gateways now use the same standard configuration fields
+            const configHTML = `
+                <div class="form-group">
+                    <label for="requestTimeout">Request Timeout (seconds)</label>
+                    <input type="number" id="requestTimeout" placeholder="30" min="1" max="300" oninput="updateGatewaySetting('requestTimeout', this.value)">
+                </div>
+                <div class="form-group">
+                    <label for="program">Program</label>
+                    <select id="program" onchange="updateGatewaySetting('program', this.value)">
+                        <option value="">Select program type...</option>
+                        <option value="cash-discounting">Cash Discounting</option>
+                        <option value="cash-discounting-quest">Cash Discounting (Quest)</option>
+                        <option value="consumer-choice">Consumer Choice</option>
+                        <option value="consumer-choice-quest">Consumer Choice (Quest)</option>
+                        <option value="non-cash-adjustment">Non Cash Adjustment</option>
+                        <option value="non-cash-adjustment-quest">Non Cash Adjustment (Quest)</option>
+                        <option value="no-program">No Program</option>
+                        <option value="surcharging-quest">Surcharging (Quest)</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="label">Label</label>
+                    <input type="text" id="label" placeholder="Enter label" oninput="updateGatewaySetting('label', this.value)">
+                </div>
+                <div class="form-group">
+                    <label for="value">Value</label>
+                    <input type="text" id="value" placeholder="Enter value" oninput="updateGatewaySetting('value', this.value)">
+                </div>
+                <div class="form-group">
+                    <label for="valueType">Value Type</label>
+                    <select id="valueType" onchange="updateGatewaySetting('valueType', this.value)">
+                        <option value="">Select value type...</option>
+                        <option value="percentage">Percentage</option>
+                        <option value="amount">Amount</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="preAuthTabAmount">Pre Auth Tab Amount</label>
+                    <input type="number" id="preAuthTabAmount" placeholder="0.00" min="0" step="0.01" oninput="updateGatewaySetting('preAuthTabAmount', this.value)">
+                </div>
+                <div class="form-group">
+                    <label for="tipPrompt">Tip Prompt</label>
+                    <div style="display: flex; align-items: center; gap: 10px; margin-top: 10px;">
+                        <label style="display: flex; align-items: center; cursor: pointer; margin: 0;">
+                            <input type="radio" name="tipPrompt" value="off" onchange="updateGatewaySetting('tipPrompt', this.value)" style="margin-right: 8px;">
+                            Off
+                        </label>
+                        <label style="display: flex; align-items: center; cursor: pointer; margin: 0;">
+                            <input type="radio" name="tipPrompt" value="on" onchange="updateGatewaySetting('tipPrompt', this.value)" style="margin-right: 8px;">
+                            On
+                        </label>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="enableTipAdjustment">Enable Tip Adjustment</label>
+                    <div style="display: flex; align-items: center; gap: 10px; margin-top: 10px;">
+                        <label style="display: flex; align-items: center; cursor: pointer; margin: 0;">
+                            <input type="radio" name="enableTipAdjustment" value="off" onchange="updateGatewaySetting('enableTipAdjustment', this.value)" style="margin-right: 8px;">
+                            Off
+                        </label>
+                        <label style="display: flex; align-items: center; cursor: pointer; margin: 0;">
+                            <input type="radio" name="enableTipAdjustment" value="on" onchange="updateGatewaySetting('enableTipAdjustment', this.value)" style="margin-right: 8px;">
+                            On
+                        </label>
+                    </div>
+                </div>
+            `;
+
+            configDiv.innerHTML = configHTML;
+            
+            setTimeout(() => {
+                document.getElementById('step4').classList.remove('hidden');
+            }, 500);
+        }
+
+        function updateGatewaySetting(key, value) {
+            config.gatewaySettings[key] = value;
+        }
+
+        function showFeatureConfig() {
+            setTimeout(() => {
+                document.getElementById('step6').classList.remove('hidden');
+            }, 500);
+        }
+
+        function toggleFeature(checkbox) {
+            // Function kept for compatibility but no longer used
+        }
+
+        function updatePreview() {
+            config.stationName = document.getElementById('stationName').value;
+            config.location = document.getElementById('location').value;
+
+            const previewContent = document.getElementById('previewContent');
+            let deviceDisplay = config.device;
+            
+            // Show appropriate device info for Card Not Present
+            if (config.appType === 'card-not-present') {
+                deviceDisplay = 'Card Not Present (No Physical Device)';
+            }
+            
+            previewContent.innerHTML = `
+                <div class="preview-item">
+                    <span>App Type:</span>
+                    <span>${config.appType.replace('-', ' ').toUpperCase()}</span>
+                </div>
+                <div class="preview-item">
+                    <span>Payment Gateway:</span>
+                    <span>${getGatewayDisplayName(config.paymentGateway)}</span>
+                </div>
+                <div class="preview-item">
+                    <span>Device:</span>
+                    <span>${deviceDisplay || 'Not selected'}</span>
+                </div>
+                <div class="preview-item">
+                    <span>Station Name:</span>
+                    <span>${config.stationName || 'Not set'}</span>
+                </div>
+                <div class="preview-item">
+                    <span>Location:</span>
+                    <span>${config.location || 'Not set'}</span>
+                </div>
+            `;
+        }
+
+        function createStation() {
+            if (!config.stationName) {
+                alert('Please enter a station name');
+                return;
+            }
+
+            alert(`Station "${config.stationName}" created successfully!\n\nConfiguration:\n${JSON.stringify(config, null, 2)}`);
+        }
+    </script>
+</body>
+</html>
